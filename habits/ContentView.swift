@@ -135,56 +135,71 @@ struct SettingSheet: View {
     private let maxNoteLength = 25
     
     var body: some View {
-        VStack(spacing: 20) {
-            TextField("Your Name", text: $userData.userName)
-                .padding()
-                .frame(width: 345, height: 40)
-                .keyboardType(.default)
-                .submitLabel(.done)
-                .background(.white)
-                .cornerRadius(10)
-                .onChange(of: userData.userName) { oldValue, newValue in
-                    if newValue.count > maxNameLength {
-                        userData.userName = String(newValue.prefix(maxNameLength))
-                    }
+        VStack( spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                    Text("Name")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.gray)
+                    
+                    TextField("Your Name", text: $userData.userName)
+                        .padding(.horizontal, 12)
+                        .frame(width: 345, height: 44)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .onChange(of: userData.userName) { oldValue, newValue in
+                            if newValue.count > maxNameLength {
+                                userData.userName = String(newValue.prefix(maxNameLength))
+                            }
+                        }
                 }
-            
-            TextField("Your Motto", text: $userData.userMotto)
-                .padding()
-                .frame(width: 345, height: 40)
-                .keyboardType(.default)
-                .submitLabel(.done)
-                .background(.white)
-                .cornerRadius(10)
-                .onChange(of: userData.userMotto) { oldValue, newValue in
-                    if newValue.count > maxMottoLength {
-                        userData.userMotto = String(newValue.prefix(maxMottoLength))
-                    }
+                
+                // Motto
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Motto")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.gray)
+                    
+                    TextField("Your Motto", text: $userData.userMotto)
+                        .padding(.horizontal, 12)
+                        .frame(width: 345, height: 44)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(10)
+                        .onChange(of: userData.userMotto) { oldValue, newValue in
+                            if newValue.count > maxMottoLength {
+                                userData.userMotto = String(newValue.prefix(maxMottoLength))
+                            }
+                        }
                 }
-            
-            TextField("Your Note to Self", text: $userData.userNote)
-                .padding()
-                .frame(width: 345, height: 40)
-                .keyboardType(.default)
-                .submitLabel(.done)
-                .background(.white)
-                .cornerRadius(10)
-                .onChange(of: userData.userNote) { oldValue, newValue in
-                    if newValue.count > maxNoteLength {
-                        userData.userNote = String(newValue.prefix(maxNoteLength))
+                
+                // Note to self
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Note to self")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.gray)
+                
+                TextField("Your Note to Self", text: $userData.userNote)
+                    .padding(.horizontal, 12)
+                    .frame(width: 345, height: 44)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                    .onChange(of: userData.userNote) { oldValue, newValue in
+                        if newValue.count > maxNoteLength {
+                            userData.userNote = String(newValue.prefix(maxNoteLength))
+                        }
                     }
-                }
-            
-            Button("Done") {
-                showSettingPopup = false
             }
-            .font(.system(size: 18, weight: .bold))
-            .frame(width: 150, height: 40)
-            .foregroundColor(.white)
-            .background(Color(hex: "4B0082"))
-            .cornerRadius(8)
+                
+                Button("Done") {
+                    showSettingPopup = false
+                }
+                .font(.system(size: 18, weight: .bold))
+                .frame(width: 150, height: 40)
+                .foregroundColor(.white)
+                .background(Color(hex: "4B0082"))
+                .cornerRadius(8)
+            
         }
-        .padding()
+        .padding(.top, 20)
         .presentationDetents([.medium, .large])
         .frame(width: UIScreen.main.bounds.width, height: 900)
         .background(Color(red: 230/255, green: 230/255, blue: 250/255))
