@@ -139,7 +139,7 @@ struct SettingSheet: View {
             VStack(alignment: .leading, spacing: 6) {
                     Text("Name")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.black)
                     
                     TextField("Your Name", text: $userData.userName)
                         .padding(.horizontal, 12)
@@ -157,7 +157,7 @@ struct SettingSheet: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Motto")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.gray)
+                        .foregroundColor(.black)
                     
                     TextField("Your Motto", text: $userData.userMotto)
                         .padding(.horizontal, 12)
@@ -175,7 +175,7 @@ struct SettingSheet: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Note to self")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.gray)
+                    .foregroundColor(.black)
                 
                 TextField("Your Note to Self", text: $userData.userNote)
                     .padding(.horizontal, 12)
