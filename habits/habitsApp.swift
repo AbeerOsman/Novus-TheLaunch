@@ -9,10 +9,14 @@ import SwiftUI
 
 @main
 struct habitsApp: App {
-    
+    @StateObject private var userData = UserData()
+       
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashPage()
+                .environmentObject(userData)
+
+               
         }
     }
 }

@@ -1,24 +1,27 @@
+//
+//  ContentView.swift
+//  habits
+//
+//  Created by Nora Abdullah Alhumaydani on 11/04/1447 AH.
+//
 import SwiftUI
 
 struct ContentView: View {
-    
+    // Use the shared UserData provided by the App
+    @EnvironmentObject var userData: UserData
+
     @State private var isAnimated: Bool = false
-    @State private var name = ""
-    @State private var motto = ""
-    @State private var note = ""
-    
     @State private var showSettingPopup = false
     @State private var showNotivicationPopup = false
     @State private var showAddHabitsPopup = false
     @State private var showShufflePopup = false
 
-    
     @State private var shakePhone: Bool = false
-    @State private var shakeCount: Int = 0   // track shakes for undo/redo
-    
+    @State private var shakeCount: Int = 0
+
     var body: some View {
         ZStack(alignment: .top) {
-            
+
             // Background
             LinearGradient(
                 gradient: Gradient(colors: [
@@ -29,62 +32,56 @@ struct ContentView: View {
                 endPoint: .center
             )
             .ignoresSafeArea()
-            
+
             VStack(alignment: .leading, spacing: 20) {
-                
+
                 // Header with name + settings + icons
                 HStack {
                     // Welcome text + edit button
                     HStack(spacing: 9) {
-                        Text("Welcome Back, \(name) !")
+                        Text("Welcome Back, \(userData.userName.isEmpty ? "Achiever" : userData.userName)!")
                             .fontWeight(.semibold)
                             .font(.system(size: 20))
                             .foregroundStyle(.black)
-                    
+
                         Button(action: { showSettingPopup = true }) {
                             Image(systemName: "pencil.and.scribble")
                                 .foregroundColor(Color(hex: "4B0082"))
                                 .font(.system(size: 15, weight: .heavy))
                         }
                         .sheet(isPresented: $showSettingPopup) {
-                            SettingSheet(
-                                name: $name,
-                                motto: $motto,
-                                note: $note,
-                                showSettingPopup: $showSettingPopup
-                            )
+                            SettingSheet(userData: userData, showSettingPopup: $showSettingPopup)
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     // Icons
                     HStack(spacing: 12) {
                         StreakIcon()
                         NotificationIcon(isAnimated: $isAnimated, showNotivicationPopup: $showNotivicationPopup)
-                        
                     }
                 }
                 .padding(.horizontal)
                 .padding(.top, 32)
                 .padding(.bottom, 32)
-                
+
                 // Page title
                 Text("Tracking Your \n Habits")
                     .font(.system(size: 40, weight: .heavy, design: .rounded))
                     .frame(width: 350, height: 100, alignment: .leading)
                     .padding(.horizontal)
-                
+
                 // Calendar
                 CalendarSection()
-                
-                // Today’s Activities
+
+                // Today's Activities
                 HStack {
-                    Text("Today’s Activities")
+                    Text("Today's Activities")
                         .font(.system(size: 20, weight: .semibold))
-                    
+
                     Spacer()
-                    
+
                     // Add Habits button
                     Button(action: { showAddHabitsPopup = true }) {
                         Circle()
@@ -109,47 +106,74 @@ struct ContentView: View {
                 }
                 .padding(.horizontal)
                 .padding(.top, 16)
-                
-                
+
                 // Activities list
                 ActivitiesList()
-                
             }
         }
-        // Second sheet (appears after AddHabitsSheet dismisses)
         .sheet(isPresented: $showShufflePopup) {
             HabitsShuffle()
                 .presentationDetents([.medium, .large])
         }
+        // Keep environment object wiring to the App (do not re-add here)
     }
 }
 
+// Preview: provide environmentObject so the preview compiles
+#Preview {
+    ContentView()
+        .environmentObject(UserData())
+}
+
+
 struct SettingSheet: View {
-    @Binding var name: String
-    @Binding var motto: String
-    @Binding var note: String
+    @ObservedObject var userData: UserData
     @Binding var showSettingPopup: Bool
+    
+    private let maxNameLength = 15
+    private let maxMottoLength = 18
+    private let maxNoteLength = 25
     
     var body: some View {
         VStack(spacing: 20) {
-            TextField("Your Name", text: $name)
+            TextField("Your Name", text: $userData.userName)
                 .padding()
                 .frame(width: 345, height: 40)
-                .keyboardType(.default) .submitLabel(.done)
-                .background(.white) .cornerRadius(10)
-                
+                .keyboardType(.default)
+                .submitLabel(.done)
+                .background(.white)
+                .cornerRadius(10)
+                .onChange(of: userData.userName) { oldValue, newValue in
+                    if newValue.count > maxNameLength {
+                        userData.userName = String(newValue.prefix(maxNameLength))
+                    }
+                }
             
-            TextField("Your Motto", text: $motto)
+            TextField("Your Motto", text: $userData.userMotto)
                 .padding()
                 .frame(width: 345, height: 40)
-                .keyboardType(.default) .submitLabel(.done)
-                .background(.white) .cornerRadius(10)
+                .keyboardType(.default)
+                .submitLabel(.done)
+                .background(.white)
+                .cornerRadius(10)
+                .onChange(of: userData.userMotto) { oldValue, newValue in
+                    if newValue.count > maxMottoLength {
+                        userData.userMotto = String(newValue.prefix(maxMottoLength))
+                    }
+                }
             
-            TextField("Your Note to Self", text: $note)
+            TextField("Your Note to Self", text: $userData.userNote)
                 .padding()
                 .frame(width: 345, height: 40)
-                .keyboardType(.default) .submitLabel(.done)
-                .background(.white) .cornerRadius(10)
+                .keyboardType(.default)
+                .submitLabel(.done)
+                .background(.white)
+                .cornerRadius(10)
+                .onChange(of: userData.userNote) { oldValue, newValue in
+                    if newValue.count > maxNoteLength {
+                        userData.userNote = String(newValue.prefix(maxNoteLength))
+                    }
+                }
             
             Button("Done") {
                 showSettingPopup = false
@@ -164,7 +188,6 @@ struct SettingSheet: View {
         .presentationDetents([.medium, .large])
         .frame(width: UIScreen.main.bounds.width, height: 900)
         .background(Color(red: 230/255, green: 230/255, blue: 250/255))
-        
     }
 }
 
@@ -192,32 +215,14 @@ struct AddHabitsSheet: View {
                 .rotationEffect(.degrees(shakePhone ? -10 : 10))
                 .animation(.easeInOut(duration: 0.25).repeatForever(autoreverses: true), value: shakePhone)
                 .onAppear { shakePhone = true }
-            
-            HStack(spacing: 40) {
-                Button("Undo") {
-                    if shakeCount > 0 { shakeCount -= 1 }
-                }
-                .disabled(shakeCount == 0)
-                .buttonStyle(ActionButtonStyle(enabled: shakeCount > 0))
-                
-                Button("Redo") { shakeCount += 1 }
-                    .buttonStyle(ActionButtonStyle(enabled: true))
-            }
-            .padding(.top, 20)
+                .padding(.top, 20)
             
             Spacer()
-            
-            if shakeCount > 0 {
-                Text("Shakes: \(shakeCount)")
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .foregroundColor(Color(hex: "191970"))
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(red: 230/255, green: 230/255, blue: 250/255))
         .presentationDetents([.medium, .large])
         .onShake {
-            // Dismiss current sheet then show shuffle
             dismiss()
             dismissParent()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -226,8 +231,6 @@ struct AddHabitsSheet: View {
         }
     }
 }
-
-
 
 struct StreakIcon: View {
     var body: some View {
@@ -285,9 +288,6 @@ struct CalendarSection: View {
                 Calendar()
             }
             
-                
-           
-            
             HStack(spacing: 24) {
                 ForEach(["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], id: \.self) { day in
                     Text(day)
@@ -312,7 +312,6 @@ struct CalendarSection: View {
             .background( Color(red: 75/255, green: 0/255, blue: 130/255) .frame(width: 280, height: 25) .cornerRadius(8)
                 .padding(.trailing, 45)
                 .padding(.top, 16) )
-            
         }
         .padding(.horizontal)
     }
@@ -362,7 +361,7 @@ struct ActionButtonStyle: ButtonStyle {
 }
 
 // MARK: - HEX Color Extension
-extension Color {
+/*extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: .alphanumerics.inverted)
         var int: UInt64 = 0
@@ -375,7 +374,7 @@ extension Color {
                   blue: Double(b) / 255,
                   opacity: 1)
     }
-}
+}*/
 
 // MARK: - Shake Detection
 extension UIWindow {
